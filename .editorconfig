@@ -1,0 +1,6 @@
+# set indent to 2 spaces
+root = true
+
+[*]
+indent_style = space
+indent_size = 2
