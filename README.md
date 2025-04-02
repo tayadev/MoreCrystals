@@ -1,27 +1,19 @@
+# More Crystals
 
-Installation information
-=======
+More Crystals is a Minecraft mod that adds a variety of new crystal types to the game. 
 
-This template repository can be directly cloned to get you started with a new
-mod. Simply create a new repository cloned from this one, by following the
-instructions at [github](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template).
+## Features
 
-Once you have your clone, simply open the repository in the IDE of your choice. The usual recommendation for an IDE is either IntelliJ IDEA or Eclipse.
+- Adds new crystal types such as Diamond and Redstone crystals.
+- Budding crystal blocks that grow crystal buds over time.
+- Crystal buds that grow into crystal clusters.
+- Fully grown crystal clusters that can be harvested for resources.
 
-> **Note**: For Eclipse, use tasks in `Launch Group` instead of ones founds in `Java Application`. A preparation task must run before launching the game. NeoGradle uses launch groups to do these subsequently.
+## Installation
 
-If at any point you are missing libraries in your IDE, or you've run into problems you can
-run `gradlew --refresh-dependencies` to refresh the local cache. `gradlew clean` to reset everything 
-{this does not affect your code} and then start the process again.
+To install the More Crystals mod, follow these steps:
 
-Mapping Names:
-============
-By default, the MDK is configured to use the official mapping names from Mojang for methods and fields 
-in the Minecraft codebase. These names are covered by a specific license. All modders should be aware of this
-license. For the latest license text, refer to the mapping file itself, or the reference copy here:
-https://github.com/NeoForged/NeoForm/blob/main/Mojang.md
-
-Additional Resources: 
-==========
-Community Documentation: https://docs.neoforged.net/  
-NeoForged Discord: https://discord.neoforged.net/
+1. Download the latest version of the More Crystals mod from the [releases page](https://github.com/tayadev/MoreCrystals/releases).
+2. Ensure you have Minecraft and NeoForge installed.
+3. Place the downloaded mod file into the `mods` folder of your Minecraft directory.
+4. Launch Minecraft and enjoy the new crystals!
