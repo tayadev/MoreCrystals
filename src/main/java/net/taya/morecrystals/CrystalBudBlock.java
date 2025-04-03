@@ -33,10 +33,10 @@ public class CrystalBudBlock extends Block implements SimpleWaterloggedBlock {
   private final GrowthStage growthStage;
 
   public enum GrowthStage {
-    SMALL(1, 1, 6, 6),
-    MEDIUM(2, 2, 8, 8),
-    LARGE(3, 3, 10, 10),
-    CLUSTER(4, 5, 12, 12);
+    SMALL(1, 1, 8, 3),
+    MEDIUM(2, 2, 10, 4),
+    LARGE(3, 4, 10, 5),
+    CLUSTER(4, 5, 10, 7);
 
     private final int level;
     private final int lightEmission;
