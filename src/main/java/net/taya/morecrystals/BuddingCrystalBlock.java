@@ -1,5 +1,6 @@
 package net.taya.morecrystals;
 
+import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -9,13 +10,10 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.registries.DeferredBlock;
 
-// Represents a generic budding crystal block, which represents a budding crystal (like amethyst is) that when ticked can grow, or advance the growth of an attached crystal bud block
+// Represents a generic budding crystal block, which represents a budding crystal (like amethyst is)
+// that when ticked can grow, or advance the growth of an attached crystal bud block
 public class BuddingCrystalBlock extends Block {
-  // Removed the static final GROWTH_CHANCE constant as we'll now use the config value
-  private final DeferredBlock<Block> smallBudBlock;
-  private final DeferredBlock<Block> mediumBudBlock;
-  private final DeferredBlock<Block> largeBudBlock;
-  private final DeferredBlock<Block> clusterBlock;
+  private final List<DeferredBlock<Block>> growthStages;
 
   public BuddingCrystalBlock(
       BlockBehaviour.Properties properties,
@@ -24,36 +22,44 @@ public class BuddingCrystalBlock extends Block {
       DeferredBlock<Block> largeBudBlock,
       DeferredBlock<Block> clusterBlock) {
     super(properties);
-    this.smallBudBlock = smallBudBlock;
-    this.mediumBudBlock = mediumBudBlock;
-    this.largeBudBlock = largeBudBlock;
-    this.clusterBlock = clusterBlock;
+
+    this.growthStages = List.of(
+        smallBudBlock,
+        mediumBudBlock, 
+        largeBudBlock, 
+        clusterBlock
+    );
   }
 
   @Override
   public void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
-    // Use the growth chance from the config instead of a hard-coded value
     if (random.nextInt(Config.growthChance) == 0) {
       Direction direction = Direction.values()[random.nextInt(Direction.values().length)];
       BlockPos growPos = pos.relative(direction);
       BlockState targetState = level.getBlockState(growPos);
       Block targetBlock = targetState.getBlock();
 
-      // Check if the position is air for new growth
+      // Handle the case where the target position is air (initialize new bud)
       if (targetState.isAir()) {
-        level.setBlock(growPos, smallBudBlock.get().defaultBlockState().setValue(
-            CrystalBudBlock.FACING, direction), 3);
+        level.setBlock(
+            growPos,
+            growthStages.get(0).get().defaultBlockState().setValue(CrystalBudBlock.FACING, direction),
+            3);
+        return;
       }
-      // Check if we can advance growth stages
-      else if (targetBlock == smallBudBlock.get()) {
-        level.setBlock(growPos, mediumBudBlock.get().defaultBlockState().setValue(
-            CrystalBudBlock.FACING, targetState.getValue(CrystalBudBlock.FACING)), 3);
-      } else if (targetBlock == mediumBudBlock.get()) {
-        level.setBlock(growPos, largeBudBlock.get().defaultBlockState().setValue(
-            CrystalBudBlock.FACING, targetState.getValue(CrystalBudBlock.FACING)), 3);
-      } else if (targetBlock == largeBudBlock.get()) {
-        level.setBlock(growPos, clusterBlock.get().defaultBlockState().setValue(
-            CrystalBudBlock.FACING, targetState.getValue(CrystalBudBlock.FACING)), 3);
+
+      // Handle growth progression for existing buds
+      for (int i = 0; i < growthStages.size() - 1; i++) {
+        if (targetBlock == growthStages.get(i).get()) {
+          // Get the next growth stage
+          DeferredBlock<Block> nextStage = growthStages.get(i + 1);
+          level.setBlock(
+              growPos,
+              nextStage.get().defaultBlockState()
+                  .setValue(CrystalBudBlock.FACING, targetState.getValue(CrystalBudBlock.FACING)),
+              3);
+          break;
+        }
       }
     }
   }

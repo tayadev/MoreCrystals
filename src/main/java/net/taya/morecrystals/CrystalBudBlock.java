@@ -1,5 +1,7 @@
 package net.taya.morecrystals;
 
+import java.util.EnumMap;
+import java.util.Map;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -24,10 +26,6 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.EnumMap;
-import java.util.Map;
-import java.util.function.ToIntFunction;
-
 public class CrystalBudBlock extends Block implements SimpleWaterloggedBlock {
   public static final DirectionProperty FACING = BlockStateProperties.FACING;
   public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
@@ -35,52 +33,36 @@ public class CrystalBudBlock extends Block implements SimpleWaterloggedBlock {
   private final GrowthStage growthStage;
 
   public enum GrowthStage {
-    SMALL(1, state -> 1, 6, 6),
-    MEDIUM(2, state -> 2, 8, 8),
-    LARGE(3, state -> 3, 10, 10),
-    CLUSTER(4, state -> 5, 12, 12);
+    SMALL(1, 1, 6, 6),
+    MEDIUM(2, 2, 8, 8),
+    LARGE(3, 3, 10, 10),
+    CLUSTER(4, 5, 12, 12);
 
     private final int level;
-    private final ToIntFunction<BlockState> lightEmission;
+    private final int lightEmission;
     private final Map<Direction, VoxelShape> shapes = new EnumMap<>(Direction.class);
-    
-    GrowthStage(int level, ToIntFunction<BlockState> lightEmission, int width, int height) {
+
+    GrowthStage(int level, int lightEmission, int width, int height) {
       this.level = level;
       this.lightEmission = lightEmission;
 
-      // Calculate offset and inset based on width
       double inset = (16.0D - width) / 2.0D;
-      
-      // Generate all 6 direction shapes
-      // UP pointing
-      shapes.put(Direction.UP, Block.box(
-          inset, 0.0D, inset, 
-          16.0D - inset, height, 16.0D - inset));
-      
-      // DOWN pointing
-      shapes.put(Direction.DOWN, Block.box(
-          inset, 16.0D - height, inset, 
-          16.0D - inset, 16.0D, 16.0D - inset));
-      
-      // NORTH pointing
-      shapes.put(Direction.NORTH, Block.box(
-          inset, inset, 16.0D - height, 
-          16.0D - inset, 16.0D - inset, 16.0D));
-      
-      // SOUTH pointing
-      shapes.put(Direction.SOUTH, Block.box(
-          inset, inset, 0.0D, 
-          16.0D - inset, 16.0D - inset, height));
-      
-      // EAST pointing  
-      shapes.put(Direction.EAST, Block.box(
-          0.0D, inset, inset, 
-          height, 16.0D - inset, 16.0D - inset));
-      
-      // WEST pointing
-      shapes.put(Direction.WEST, Block.box(
-          16.0D - height, inset, inset, 
-          16.0D, 16.0D - inset, 16.0D - inset));
+
+
+      shapes.put(Direction.UP, Block.box(inset, 0.0D, inset, 16.0D - inset, height, 16.0D - inset));
+      shapes.put(
+          Direction.DOWN,
+          Block.box(inset, 16.0D - height, inset, 16.0D - inset, 16.0D, 16.0D - inset));
+      shapes.put(
+          Direction.NORTH,
+          Block.box(inset, inset, 16.0D - height, 16.0D - inset, 16.0D - inset, 16.0D));
+      shapes.put(
+          Direction.SOUTH, Block.box(inset, inset, 0.0D, 16.0D - inset, 16.0D - inset, height));
+      shapes.put(
+          Direction.EAST, Block.box(0.0D, inset, inset, height, 16.0D - inset, 16.0D - inset));
+      shapes.put(
+          Direction.WEST,
+          Block.box(16.0D - height, inset, inset, 16.0D, 16.0D - inset, 16.0D - inset));
     }
 
     public VoxelShape getShape(Direction direction) {
@@ -91,23 +73,25 @@ public class CrystalBudBlock extends Block implements SimpleWaterloggedBlock {
       return level;
     }
 
-    public ToIntFunction<BlockState> getLightEmission() {
+    public int getLightEmission() {
       return lightEmission;
     }
   }
 
   public CrystalBudBlock(BlockBehaviour.Properties properties, GrowthStage growthStage) {
-    // For cross models, we want to update the properties to match how vanilla amethyst works
-    super(properties
-          .noOcclusion()        // Allows light to pass through
-          .lightLevel(growthStage.getLightEmission())  // Emits light based on growth stage
-          .sound(SoundType.AMETHYST_CLUSTER) // Use amethyst sound
-          .strength(1.5F));     // Break easily
-          
+    super(
+        properties
+            .noOcclusion()
+            .lightLevel(state -> growthStage.getLightEmission())
+            .sound(SoundType.AMETHYST_CLUSTER)
+            .strength(1.5F));
+
     this.growthStage = growthStage;
-    this.registerDefaultState(this.stateDefinition.any()
-        .setValue(FACING, Direction.UP)
-        .setValue(WATERLOGGED, Boolean.FALSE));
+    this.registerDefaultState(
+        this.stateDefinition
+            .any()
+            .setValue(FACING, Direction.UP)
+            .setValue(WATERLOGGED, Boolean.FALSE));
   }
 
   @Override
@@ -116,7 +100,10 @@ public class CrystalBudBlock extends Block implements SimpleWaterloggedBlock {
   }
 
   @Override
-  public @NotNull VoxelShape getShape(BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos,
+  public @NotNull VoxelShape getShape(
+      BlockState state,
+      @NotNull BlockGetter level,
+      @NotNull BlockPos pos,
       @NotNull CollisionContext context) {
     return growthStage.getShape(state.getValue(FACING));
   }
@@ -127,7 +114,6 @@ public class CrystalBudBlock extends Block implements SimpleWaterloggedBlock {
     Direction direction = context.getClickedFace();
     FluidState fluidState = context.getLevel().getFluidState(context.getClickedPos());
 
-    // Allow placement only on solid faces
     return canSupportAt(context.getLevel(), context.getClickedPos(), direction)
         ? this.defaultBlockState()
             .setValue(FACING, direction)
@@ -136,15 +122,19 @@ public class CrystalBudBlock extends Block implements SimpleWaterloggedBlock {
   }
 
   @Override
-  public @NotNull BlockState updateShape(BlockState state, @NotNull Direction direction,
+  public @NotNull BlockState updateShape(
+      BlockState state,
+      @NotNull Direction direction,
       @NotNull BlockState neighborState,
-      @NotNull LevelAccessor level, @NotNull BlockPos pos, @NotNull BlockPos neighborPos) {
+      @NotNull LevelAccessor level,
+      @NotNull BlockPos pos,
+      @NotNull BlockPos neighborPos) {
     if (state.getValue(WATERLOGGED)) {
       level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
     }
 
-    // Make the crystal break if its support is gone
-    if (direction == state.getValue(FACING).getOpposite() && !canSupportAt(level, pos, state.getValue(FACING))) {
+    if (direction == state.getValue(FACING).getOpposite()
+        && !canSupportAt(level, pos, state.getValue(FACING))) {
       return Blocks.AIR.defaultBlockState();
     }
 

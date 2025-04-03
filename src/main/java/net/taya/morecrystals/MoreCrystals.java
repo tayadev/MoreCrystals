@@ -1,10 +1,8 @@
 package net.taya.morecrystals;
 
-import org.slf4j.Logger;
-
 import com.mojang.logging.LogUtils;
-
-import net.minecraft.world.item.CreativeModeTabs;
+import java.util.Arrays;
+import java.util.List;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -18,86 +16,54 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
-
-import java.util.Arrays;
-import java.util.List;
+import org.slf4j.Logger;
 
 @Mod(MoreCrystals.MODID)
 public class MoreCrystals {
-        public static final String MODID = "morecrystals";
-        public static final Logger LOGGER = LogUtils.getLogger();
+  public static final String MODID = "morecrystals";
+  public static final Logger LOGGER = LogUtils.getLogger();
 
-        public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(MODID);
-        public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(MODID);
-        
-        public static final List<String> CRYSTAL_TYPES = Arrays.asList(
-            "diamond",
-            "redstone"
-        );
+  public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(MODID);
+  public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(MODID);
 
-        public MoreCrystals(IEventBus modEventBus, ModContainer modContainer) {
-                // Register all crystal types first, before registering the DeferredRegisters
-                for (String crystalType : CRYSTAL_TYPES) {
-                    CrystalRegistry.registerCrystalType(crystalType);
-                }
-                LOGGER.info("Registered {} crystal types", CRYSTAL_TYPES.size());
-                
-                // Now register the DeferredRegisters with the mod event bus
-                BLOCKS.register(modEventBus);
-                ITEMS.register(modEventBus);
-                
-                modEventBus.addListener(this::commonSetup);
+  public static final List<String> CRYSTAL_TYPES = Arrays.asList("diamond", "redstone");
 
-                NeoForge.EVENT_BUS.register(this);
+  public MoreCrystals(IEventBus modEventBus, ModContainer modContainer) {
+    for (String crystalType : CRYSTAL_TYPES) {
+      CrystalRegistry.registerCrystalType(crystalType);
+    }
+    LOGGER.info("Registered {} crystal types", CRYSTAL_TYPES.size());
 
-                modEventBus.addListener(this::addCreative);
+    BLOCKS.register(modEventBus);
+    ITEMS.register(modEventBus);
 
-                modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
-        }
+    modEventBus.addListener(this::commonSetup);
 
-        private void commonSetup(final FMLCommonSetupEvent event) {
-                // Some common setup code
-                LOGGER.info("MoreCrystals: Common setup");
-        }
+    NeoForge.EVENT_BUS.register(this);
 
-        // Add crystal items to the appropriate creative tabs
-        private void addCreative(BuildCreativeModeTabContentsEvent event) {
-                if (event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS) {
-                        // Add all crystal blocks to the building blocks tab
-                        for (String crystalType : CRYSTAL_TYPES) {
-                                CrystalRegistry.CrystalSet crystalSet = CrystalRegistry.getCrystalSet(crystalType);
-                                if (crystalSet != null) {
-                                        event.accept(crystalSet.getBuddingBlock());
-                                        event.accept(crystalSet.getSmallBudBlock());
-                                        event.accept(crystalSet.getMediumBudBlock());
-                                        event.accept(crystalSet.getLargeBudBlock());
-                                        event.accept(crystalSet.getClusterBlock());
-                                }
-                        }
-                }
-                
-                if (event.getTabKey() == CreativeModeTabs.NATURAL_BLOCKS) {
-                        // Add all crystal blocks to the natural blocks tab too
-                        for (String crystalType : CRYSTAL_TYPES) {
-                                CrystalRegistry.CrystalSet crystalSet = CrystalRegistry.getCrystalSet(crystalType);
-                                if (crystalSet != null) {
-                                        event.accept(crystalSet.getBuddingBlock());
-                                        event.accept(crystalSet.getClusterBlock());
-                                }
-                        }
-                }
-        }
+    modEventBus.addListener(this::addCreative);
 
-        @SubscribeEvent
-        public void onServerStarting(ServerStartingEvent event) {
-                LOGGER.info("MoreCrystals: Server starting");
-        }
+    modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+  }
 
-        @EventBusSubscriber(modid = MODID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
-        public static class ClientModEvents {
-                @SubscribeEvent
-                public static void onClientSetup(FMLClientSetupEvent event) {
-                        LOGGER.info("MoreCrystals: Client setup");
-                }
-        }
+  private void commonSetup(final FMLCommonSetupEvent event) {
+    LOGGER.info("MoreCrystals: Common setup");
+  }
+
+  private void addCreative(BuildCreativeModeTabContentsEvent event) {
+    CrystalRegistry.addItemsToCreativeTabs(event);
+  }
+
+  @SubscribeEvent
+  public void onServerStarting(ServerStartingEvent event) {
+    LOGGER.info("MoreCrystals: Server starting");
+  }
+
+  @EventBusSubscriber(modid = MODID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+  public static class ClientModEvents {
+    @SubscribeEvent
+    public static void onClientSetup(FMLClientSetupEvent event) {
+      LOGGER.info("MoreCrystals: Client setup");
+    }
+  }
 }
