@@ -16,7 +16,6 @@ public class BuddingCrystalBlock extends Block {
   public final String crystalType;
   public final BuddingQuality quality;
 
-  // Different quality levels for budding blocks
   public enum BuddingQuality {
     FLAWLESS, // Highest quality, never deteriorates
     FLAWED, // High quality, can deteriorate to CHIPPED

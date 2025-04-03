@@ -1,6 +1,10 @@
 name: Build
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [ '**' ]
+    tags: [ 'v*' ]
+  pull_request:
 
 jobs:
   build:
@@ -33,3 +37,21 @@ jobs:
           name: morecrystals
           path: build/libs/morecrystals-*.jar
           if-no-files-found: error
+          
+      - name: Get JAR filename
+        if: startsWith(github.ref, 'refs/tags/')
+        id: get-jar
+        run: |
+          echo "JAR_FILE=$(find build/libs -name 'morecrystals-*.jar' -type f | head -n 1)" >> $GITHUB_OUTPUT
+          echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v1
+        with:
+          name: MoreCrystals ${{ steps.get-jar.outputs.VERSION }}
+          files: ${{ steps.get-jar.outputs.JAR_FILE }}
+          generate_release_notes: true
+          draft: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
