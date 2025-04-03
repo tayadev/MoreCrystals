@@ -16,7 +16,7 @@ public class Config {
               "The chance (1 in X) that a budding crystal will attempt to grow during a random tick.",
               "Higher numbers mean slower growth. Default: 5")
           .defineInRange("growthChance", 5, 1, 100);
-          
+
   // Properties for crystal deterioration
   private static final ModConfigSpec.IntValue DETERIORATE_CHANCE =
       BUILDER

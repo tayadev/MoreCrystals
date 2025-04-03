@@ -35,9 +35,9 @@ public class CrystalRegistry {
         registerBudBlock(crystalType, "large", CrystalBudBlock.GrowthStage.LARGE);
     DeferredBlock<Block> cluster =
         registerBudBlock(crystalType, "", CrystalBudBlock.GrowthStage.CLUSTER);
-    
+
     // Register the base crystal block (non-budding)
-    DeferredBlock<Block> crystalBlock = 
+    DeferredBlock<Block> crystalBlock =
         MoreCrystals.BLOCKS.register(
             crystalType + "_block",
             () -> new CrystalBlock(CrystalBlock.createStandardProperties()));
@@ -45,8 +45,7 @@ public class CrystalRegistry {
     // Register different quality budding crystal blocks
     DeferredBlock<Block> flawlessBuddingCrystal =
         registerBuddingCrystalBlock(crystalType, "flawless");
-    DeferredBlock<Block> flawedBuddingCrystal =
-        registerBuddingCrystalBlock(crystalType, "flawed");
+    DeferredBlock<Block> flawedBuddingCrystal = registerBuddingCrystalBlock(crystalType, "flawed");
     DeferredBlock<Block> chippedBuddingCrystal =
         registerBuddingCrystalBlock(crystalType, "chipped");
     DeferredBlock<Block> damagedBuddingCrystal =
@@ -54,69 +53,74 @@ public class CrystalRegistry {
 
     // Register the block items
     MoreCrystals.ITEMS.registerSimpleBlockItem(crystalType + "_block", crystalBlock);
-    MoreCrystals.ITEMS.registerSimpleBlockItem("flawless_budding_" + crystalType, flawlessBuddingCrystal);
-    MoreCrystals.ITEMS.registerSimpleBlockItem("flawed_budding_" + crystalType, flawedBuddingCrystal);
-    MoreCrystals.ITEMS.registerSimpleBlockItem("chipped_budding_" + crystalType, chippedBuddingCrystal);
-    MoreCrystals.ITEMS.registerSimpleBlockItem("damaged_budding_" + crystalType, damagedBuddingCrystal);
+    MoreCrystals.ITEMS.registerSimpleBlockItem(
+        "flawless_budding_" + crystalType, flawlessBuddingCrystal);
+    MoreCrystals.ITEMS.registerSimpleBlockItem(
+        "flawed_budding_" + crystalType, flawedBuddingCrystal);
+    MoreCrystals.ITEMS.registerSimpleBlockItem(
+        "chipped_budding_" + crystalType, chippedBuddingCrystal);
+    MoreCrystals.ITEMS.registerSimpleBlockItem(
+        "damaged_budding_" + crystalType, damagedBuddingCrystal);
     MoreCrystals.ITEMS.registerSimpleBlockItem("small_" + crystalType + "_bud", smallBud);
     MoreCrystals.ITEMS.registerSimpleBlockItem("medium_" + crystalType + "_bud", mediumBud);
     MoreCrystals.ITEMS.registerSimpleBlockItem("large_" + crystalType + "_bud", largeBud);
     MoreCrystals.ITEMS.registerSimpleBlockItem(crystalType + "_cluster", cluster);
 
     // Store the crystal set in the registry
-    CrystalSet crystalSet = new CrystalSet(
-        flawlessBuddingCrystal, 
-        flawedBuddingCrystal, 
-        chippedBuddingCrystal, 
-        damagedBuddingCrystal,
-        crystalBlock, 
-        smallBud, 
-        mediumBud, 
-        largeBud, 
-        cluster);
+    CrystalSet crystalSet =
+        new CrystalSet(
+            flawlessBuddingCrystal,
+            flawedBuddingCrystal,
+            chippedBuddingCrystal,
+            damagedBuddingCrystal,
+            crystalBlock,
+            smallBud,
+            mediumBud,
+            largeBud,
+            cluster);
     CRYSTAL_VARIANTS.put(crystalType, crystalSet);
 
     MoreCrystals.LOGGER.info("Registered crystal type: {}", crystalType);
   }
-  
+
   /** Helper method to register a budding crystal block with specific quality */
   private static DeferredBlock<Block> registerBuddingCrystalBlock(
-      String crystalType,
-      String qualityPrefix) {
-    
+      String crystalType, String qualityPrefix) {
+
     String blockId = qualityPrefix + "_budding_" + crystalType;
-    
-    DeferredBlock<Block> buddingBlock = MoreCrystals.BLOCKS.register(
-        blockId,
-        () -> {
-            BuddingCrystalBlock.BuddingQuality quality;
-            switch (qualityPrefix) {
+
+    DeferredBlock<Block> buddingBlock =
+        MoreCrystals.BLOCKS.register(
+            blockId,
+            () -> {
+              BuddingCrystalBlock.BuddingQuality quality;
+              switch (qualityPrefix) {
                 case "flawless":
-                    quality = BuddingCrystalBlock.BuddingQuality.FLAWLESS;
-                    break;
+                  quality = BuddingCrystalBlock.BuddingQuality.FLAWLESS;
+                  break;
                 case "flawed":
-                    quality = BuddingCrystalBlock.BuddingQuality.FLAWED;
-                    break;
+                  quality = BuddingCrystalBlock.BuddingQuality.FLAWED;
+                  break;
                 case "chipped":
-                    quality = BuddingCrystalBlock.BuddingQuality.CHIPPED;
-                    break;
+                  quality = BuddingCrystalBlock.BuddingQuality.CHIPPED;
+                  break;
                 case "damaged":
-                    quality = BuddingCrystalBlock.BuddingQuality.DAMAGED;
-                    break;
+                  quality = BuddingCrystalBlock.BuddingQuality.DAMAGED;
+                  break;
                 default:
-                    quality = BuddingCrystalBlock.BuddingQuality.FLAWLESS;
-                    break;
-            }
-            
-            return new BuddingCrystalBlock(
-                BlockBehaviour.Properties.of()
-                    .randomTicks()
-                    .strength(1.5F)
-                    .sound(SoundType.AMETHYST),
-                crystalType,
-                quality);
-        });
-        
+                  quality = BuddingCrystalBlock.BuddingQuality.FLAWLESS;
+                  break;
+              }
+
+              return new BuddingCrystalBlock(
+                  BlockBehaviour.Properties.of()
+                      .randomTicks()
+                      .strength(1.5F)
+                      .sound(SoundType.AMETHYST),
+                  crystalType,
+                  quality);
+            });
+
     return buddingBlock;
   }
 
@@ -186,19 +190,19 @@ public class CrystalRegistry {
 
   /**
    * Get the next lower quality budding block for deterioration
-   * 
+   *
    * @param currentBlock The current block that is deteriorating
    * @return The next lower quality block, or null if none found
    */
   public static Block getNextLowerQualityBlock(BuddingCrystalBlock currentBlock) {
     String crystalType = currentBlock.crystalType;
     BuddingCrystalBlock.BuddingQuality quality = currentBlock.quality;
-    
+
     CrystalSet crystalSet = getCrystalSet(crystalType);
     if (crystalSet == null) {
       return null;
     }
-    
+
     // Return the appropriate lower quality block based on current quality
     switch (quality) {
       case FLAWED:

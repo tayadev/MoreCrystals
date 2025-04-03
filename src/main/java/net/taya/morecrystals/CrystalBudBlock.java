@@ -48,7 +48,6 @@ public class CrystalBudBlock extends Block implements SimpleWaterloggedBlock {
 
       double inset = (16.0D - width) / 2.0D;
 
-
       shapes.put(Direction.UP, Block.box(inset, 0.0D, inset, 16.0D - inset, height, 16.0D - inset));
       shapes.put(
           Direction.DOWN,

@@ -28,10 +28,10 @@ public class LangProvider extends LanguageProvider {
     add("block.morecrystals.flawed_budding_" + crystalType, "Flawed Budding " + formattedName);
     add("block.morecrystals.chipped_budding_" + crystalType, "Chipped Budding " + formattedName);
     add("block.morecrystals.damaged_budding_" + crystalType, "Damaged Budding " + formattedName);
-    
+
     // Add translation for non-budding crystal block
     add("block.morecrystals." + crystalType + "_block", formattedName + " Block");
-    
+
     // Original bud translations
     add("block.morecrystals.small_" + crystalType + "_bud", "Small " + formattedName + " Bud");
     add("block.morecrystals.medium_" + crystalType + "_bud", "Medium " + formattedName + " Bud");

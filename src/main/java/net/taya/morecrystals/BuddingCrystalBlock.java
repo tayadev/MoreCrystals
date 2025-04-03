@@ -15,19 +15,17 @@ import net.neoforged.neoforge.registries.DeferredBlock;
 public class BuddingCrystalBlock extends Block {
   public final String crystalType;
   public final BuddingQuality quality;
-  
+
   // Different quality levels for budding blocks
   public enum BuddingQuality {
     FLAWLESS, // Highest quality, never deteriorates
-    FLAWED,   // High quality, can deteriorate to CHIPPED
-    CHIPPED,  // Medium quality, can deteriorate to DAMAGED
-    DAMAGED   // Lowest quality, can deteriorate into base crystal block
+    FLAWED, // High quality, can deteriorate to CHIPPED
+    CHIPPED, // Medium quality, can deteriorate to DAMAGED
+    DAMAGED // Lowest quality, can deteriorate into base crystal block
   }
 
   public BuddingCrystalBlock(
-      BlockBehaviour.Properties properties,
-      String crystalType,
-      BuddingQuality quality) {
+      BlockBehaviour.Properties properties, String crystalType, BuddingQuality quality) {
     super(properties);
     this.crystalType = crystalType;
     this.quality = quality;
@@ -47,26 +45,30 @@ public class BuddingCrystalBlock extends Block {
       if (crystalSet == null) {
         return;
       }
-      
-      List<DeferredBlock<Block>> growthStages = List.of(
-          crystalSet.smallBudBlock,
-          crystalSet.mediumBudBlock,
-          crystalSet.largeBudBlock,
-          crystalSet.clusterBlock
-      );
+
+      List<DeferredBlock<Block>> growthStages =
+          List.of(
+              crystalSet.smallBudBlock,
+              crystalSet.mediumBudBlock,
+              crystalSet.largeBudBlock,
+              crystalSet.clusterBlock);
 
       // Handle the case where the target position is air (initialize new bud)
       if (targetState.isAir()) {
         level.setBlock(
             growPos,
-            growthStages.get(0).get().defaultBlockState().setValue(CrystalBudBlock.FACING, direction),
+            growthStages
+                .get(0)
+                .get()
+                .defaultBlockState()
+                .setValue(CrystalBudBlock.FACING, direction),
             3);
-        
+
         // Check for deterioration (except for FLAWLESS quality)
         if (quality != BuddingQuality.FLAWLESS && random.nextInt(Config.deteriorateChance) == 0) {
           deteriorateBlock(level, pos, crystalSet);
         }
-        
+
         return;
       }
 
@@ -77,23 +79,27 @@ public class BuddingCrystalBlock extends Block {
           DeferredBlock<Block> nextStage = growthStages.get(i + 1);
           level.setBlock(
               growPos,
-              nextStage.get().defaultBlockState()
+              nextStage
+                  .get()
+                  .defaultBlockState()
                   .setValue(CrystalBudBlock.FACING, targetState.getValue(CrystalBudBlock.FACING)),
               3);
-              
+
           // Check for deterioration (except for FLAWLESS quality)
           if (quality != BuddingQuality.FLAWLESS && random.nextInt(Config.deteriorateChance) == 0) {
             deteriorateBlock(level, pos, crystalSet);
           }
-          
+
           break;
         }
       }
     }
   }
-  
-  // Helper method to handle block deterioration by replacing this block with lower quality or base block
-  private void deteriorateBlock(ServerLevel level, BlockPos pos, CrystalRegistry.CrystalSet crystalSet) {
+
+  // Helper method to handle block deterioration by replacing this block with lower quality or base
+  // block
+  private void deteriorateBlock(
+      ServerLevel level, BlockPos pos, CrystalRegistry.CrystalSet crystalSet) {
     switch (quality) {
       case FLAWED:
         // Deteriorate from FLAWED to CHIPPED

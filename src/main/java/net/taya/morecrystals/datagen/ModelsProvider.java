@@ -37,7 +37,7 @@ public class ModelsProvider extends BlockStateProvider {
     createBuddingCrystalBlockModel(crystalType, "flawed");
     createBuddingCrystalBlockModel(crystalType, "chipped");
     createBuddingCrystalBlockModel(crystalType, "damaged");
-    
+
     // Create model for the base crystal block
     createCrystalBlockModel(crystalType);
 
@@ -72,7 +72,7 @@ public class ModelsProvider extends BlockStateProvider {
 
     if (crystalSet != null) {
       DeferredBlock<Block> deferredBlock;
-      
+
       // Get the appropriate block based on quality
       switch (quality) {
         case "flawless" -> deferredBlock = crystalSet.flawlessBuddingBlock;
@@ -84,18 +84,18 @@ public class ModelsProvider extends BlockStateProvider {
           return;
         }
       }
-      
+
       Block block = deferredBlock.get();
 
       // Use crystal type subfolder and simplified names for textures
-      ResourceLocation textureLocation = modLoc("block/" + crystalType + "/" + quality + "_budding");
+      ResourceLocation textureLocation =
+          modLoc("block/" + crystalType + "/" + quality + "_budding");
       BlockModelBuilder modelBuilder = models().cubeAll(blockId, textureLocation);
-      
+
       // For budding quality blocks, we will use the same model for all states
-      getVariantBuilder(block).forAllStates(
-          state -> ConfiguredModel.builder().modelFile(modelBuilder).build()
-      );
-              
+      getVariantBuilder(block)
+          .forAllStates(state -> ConfiguredModel.builder().modelFile(modelBuilder).build());
+
       simpleBlockItem(block, modelBuilder);
     }
   }
