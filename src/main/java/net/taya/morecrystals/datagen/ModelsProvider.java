@@ -70,7 +70,7 @@ public class ModelsProvider extends BlockStateProvider {
     String crystalType = type.name;
     String qualityPrefix = quality.getPrefix();
     String blockId = qualityPrefix + "_budding_" + crystalType;
-    
+
     // Get the block directly from the crystal type based on quality
     DeferredBlock<Block> deferredBlock = getBuddingBlockForQuality(type, quality);
     if (deferredBlock == null) {
@@ -91,10 +91,10 @@ public class ModelsProvider extends BlockStateProvider {
 
     simpleBlockItem(block, modelBuilder);
   }
-  
+
   /**
    * Helper method to get the appropriate budding block for a quality
-   * 
+   *
    * @param type The crystal type
    * @param quality The budding quality
    * @return The deferred block for the quality, or null if unknown quality
@@ -151,7 +151,7 @@ public class ModelsProvider extends BlockStateProvider {
 
   /**
    * Helper method to get the appropriate bud block for a growth stage
-   * 
+   *
    * @param type The crystal type
    * @param stage The growth stage
    * @return The deferred block for the stage, or null if unknown stage

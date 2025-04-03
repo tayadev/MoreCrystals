@@ -69,30 +69,28 @@ public abstract class CrystalType {
 
     MoreCrystals.LOGGER.info("Registered crystal type: {}", name);
   }
-  
-  /**
-   * Register all block items for this crystal type
-   */
+
+  /** Register all block items for this crystal type */
   private void registerBlockItems() {
     // Register base crystal block item
     registerBlockItem(name + "_block", crystalBlock);
-    
+
     // Register budding block items
     registerBlockItem("flawless_budding_" + name, flawlessBuddingBlock);
     registerBlockItem("flawed_budding_" + name, flawedBuddingBlock);
     registerBlockItem("chipped_budding_" + name, chippedBuddingBlock);
     registerBlockItem("damaged_budding_" + name, damagedBuddingBlock);
-    
+
     // Register bud block items
     registerBlockItem("small_" + name + "_bud", smallBudBlock);
     registerBlockItem("medium_" + name + "_bud", mediumBudBlock);
     registerBlockItem("large_" + name + "_bud", largeBudBlock);
     registerBlockItem(name + "_cluster", clusterBlock);
   }
-  
+
   /**
    * Helper method to register a block item
-   * 
+   *
    * @param blockId The block ID
    * @param deferredBlock The deferred block
    */
@@ -101,13 +99,14 @@ public abstract class CrystalType {
   }
 
   /**
-   * Override this method to customize block properties for this crystal type.
-   * This allows crystal types to have unique characteristics.
+   * Override this method to customize block properties for this crystal type. This allows crystal
+   * types to have unique characteristics.
    *
    * @param defaultProperties The default properties to build upon
    * @return Modified properties for this crystal type
    */
-  protected BlockBehaviour.Properties customizeProperties(BlockBehaviour.Properties defaultProperties) {
+  protected BlockBehaviour.Properties customizeProperties(
+      BlockBehaviour.Properties defaultProperties) {
     // By default, no customizations are applied
     return defaultProperties;
   }
@@ -118,16 +117,13 @@ public abstract class CrystalType {
     String blockId = quality.getPrefix() + "_budding_" + name;
 
     // Start with standard properties and allow crystal type to customize
-    BlockBehaviour.Properties properties = customizeProperties(
-        BlockBehaviour.Properties.of()
-            .randomTicks()
-            .strength(1.5F)
-            .sound(SoundType.AMETHYST));
+    BlockBehaviour.Properties properties =
+        customizeProperties(
+            BlockBehaviour.Properties.of().randomTicks().strength(1.5F).sound(SoundType.AMETHYST));
 
     DeferredBlock<Block> buddingBlock =
         MoreCrystals.BLOCKS.register(
-            blockId,
-            () -> new BuddingCrystalBlock(properties, this, quality));
+            blockId, () -> new BuddingCrystalBlock(properties, this, quality));
 
     return buddingBlock;
   }
@@ -139,9 +135,8 @@ public abstract class CrystalType {
 
     // Allow crystal types to customize properties
     BlockBehaviour.Properties properties = customizeProperties(BlockBehaviour.Properties.of());
-    
-    return MoreCrystals.BLOCKS.register(
-        blockId, () -> new CrystalBudBlock(properties, stage));
+
+    return MoreCrystals.BLOCKS.register(blockId, () -> new CrystalBudBlock(properties, stage));
   }
 
   /**
@@ -187,7 +182,8 @@ public abstract class CrystalType {
    * @param event The tab content event
    * @param type The crystal type
    */
-  private static void addNaturalBlocksToTab(BuildCreativeModeTabContentsEvent event, CrystalType type) {
+  private static void addNaturalBlocksToTab(
+      BuildCreativeModeTabContentsEvent event, CrystalType type) {
     event.accept(type.flawlessBuddingBlock);
     event.accept(type.crystalBlock);
     event.accept(type.clusterBlock);

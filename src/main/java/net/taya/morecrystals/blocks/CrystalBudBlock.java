@@ -50,7 +50,7 @@ public class CrystalBudBlock extends Block implements SimpleWaterloggedBlock {
 
     /**
      * Creates a map of direction to shape for a specific width and height
-     * 
+     *
      * @param width Width of the shape in pixels
      * @param height Height of the shape in pixels
      * @return Map of directions to VoxelShapes
@@ -73,7 +73,7 @@ public class CrystalBudBlock extends Block implements SimpleWaterloggedBlock {
       result.put(
           Direction.WEST,
           Block.box(16.0D - height, inset, inset, 16.0D, 16.0D - inset, 16.0D - inset));
-      
+
       return result;
     }
 

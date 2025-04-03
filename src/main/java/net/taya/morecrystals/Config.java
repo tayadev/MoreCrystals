@@ -5,9 +5,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
-/**
- * Configuration settings for the More Crystals mod.
- */
+/** Configuration settings for the More Crystals mod. */
 @EventBusSubscriber(modid = MoreCrystals.MODID, bus = EventBusSubscriber.Bus.MOD)
 public class Config {
   private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
