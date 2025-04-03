@@ -194,3 +194,13 @@ spotless {
     googleJavaFormat()
   }
 }
+
+// Add task to set up Git hooks
+task installGitHooks(type: Copy) {
+  from new File(rootProject.rootDir, 'gradle/scripts/pre-commit')
+  into new File(rootProject.rootDir, '.git/hooks')
+  fileMode 0755 // Make the hook executable
+}
+
+// Make the build task depend on installGitHooks
+build.dependsOn installGitHooks

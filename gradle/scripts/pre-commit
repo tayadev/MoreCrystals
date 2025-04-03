@@ -1,0 +1,37 @@
+#!/bin/sh
+
+# Pre-commit hook that runs Spotless check before each commit
+# If there are any formatting issues, commit will be rejected
+
+echo "Running Spotless check to verify code formatting..."
+echo "==============================================="
+
+# Get the root directory of the repository
+ROOT_DIR=$(git rev-parse --show-toplevel)
+
+# Store current staged files
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.java$')
+
+if [ -z "$STAGED_FILES" ]; then
+  echo "No Java files to check. Proceeding with commit."
+  exit 0
+fi
+
+# Run Spotless check on the staged files
+cd $ROOT_DIR
+./gradlew spotlessCheck
+
+# Check the exit code of the spotlessCheck command
+if [ $? -ne 0 ]; then
+  echo "==============================================="
+  echo "ERROR: Code formatting issues found!"
+  echo "Run './gradlew spotlessApply' to fix formatting issues automatically"
+  echo "Then stage the changes and try committing again."
+  echo "==============================================="
+  exit 1
+else
+  echo "==============================================="
+  echo "No formatting issues found. Proceeding with commit."
+fi
+
+exit 0
