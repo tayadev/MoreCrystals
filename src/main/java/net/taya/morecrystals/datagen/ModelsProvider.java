@@ -10,9 +10,10 @@ import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.registries.DeferredBlock;
-import net.taya.morecrystals.CrystalBudBlock;
-import net.taya.morecrystals.CrystalRegistry;
+import net.taya.morecrystals.CrystalType;
 import net.taya.morecrystals.MoreCrystals;
+import net.taya.morecrystals.blocks.BuddingCrystalBlock;
+import net.taya.morecrystals.blocks.CrystalBudBlock;
 
 public class ModelsProvider extends BlockStateProvider {
   public ModelsProvider(PackOutput output, ExistingFileHelper existingFileHelper) {
@@ -21,130 +22,149 @@ public class ModelsProvider extends BlockStateProvider {
 
   @Override
   protected void registerStatesAndModels() {
-    for (String crystalType : CrystalRegistry.getRegisteredTypes()) {
-      registerCrystalVariant(crystalType);
+    // Use the getAllTypes() method to get all registered crystal types
+    for (CrystalType type : CrystalType.REGISTRY) {
+      registerCrystalVariant(type);
     }
   }
 
   /**
    * Registers all block models, blockstates, and item models for a crystal variant
    *
-   * @param crystalType The type of crystal (e.g., "diamond")
+   * @param type The crystal type
    */
-  private void registerCrystalVariant(String crystalType) {
+  private void registerCrystalVariant(CrystalType type) {
     // Create models for different budding crystal qualities
-    createBuddingCrystalBlockModel(crystalType, "flawless");
-    createBuddingCrystalBlockModel(crystalType, "flawed");
-    createBuddingCrystalBlockModel(crystalType, "chipped");
-    createBuddingCrystalBlockModel(crystalType, "damaged");
+    createBuddingCrystalBlockModel(type, BuddingCrystalBlock.BuddingQuality.FLAWLESS);
+    createBuddingCrystalBlockModel(type, BuddingCrystalBlock.BuddingQuality.FLAWED);
+    createBuddingCrystalBlockModel(type, BuddingCrystalBlock.BuddingQuality.CHIPPED);
+    createBuddingCrystalBlockModel(type, BuddingCrystalBlock.BuddingQuality.DAMAGED);
 
     // Create model for the base crystal block
-    createCrystalBlockModel(crystalType);
+    createCrystalBlockModel(type);
 
     // Create bud models
-    createCrystalBudModels(crystalType, "small", CrystalBudBlock.GrowthStage.SMALL);
-    createCrystalBudModels(crystalType, "medium", CrystalBudBlock.GrowthStage.MEDIUM);
-    createCrystalBudModels(crystalType, "large", CrystalBudBlock.GrowthStage.LARGE);
-    createCrystalBudModels(crystalType, "", CrystalBudBlock.GrowthStage.CLUSTER);
+    createCrystalBudModels(type, "small", CrystalBudBlock.GrowthStage.SMALL);
+    createCrystalBudModels(type, "medium", CrystalBudBlock.GrowthStage.MEDIUM);
+    createCrystalBudModels(type, "large", CrystalBudBlock.GrowthStage.LARGE);
+    createCrystalBudModels(type, "", CrystalBudBlock.GrowthStage.CLUSTER);
   }
 
   /** Creates model for the crystal block (non-budding) */
-  private void createCrystalBlockModel(String crystalType) {
+  private void createCrystalBlockModel(CrystalType type) {
+    String crystalType = type.name;
     String blockId = crystalType + "_block";
-    CrystalRegistry.CrystalSet crystalSet = CrystalRegistry.getCrystalSet(crystalType);
+    DeferredBlock<Block> deferredBlock = type.crystalBlock;
+    Block block = deferredBlock.get();
 
-    if (crystalSet != null) {
-      DeferredBlock<Block> deferredBlock = crystalSet.crystalBlock;
-      Block block = deferredBlock.get();
-
-      // Use crystal type subfolder for textures
-      ResourceLocation textureLocation = modLoc("block/" + crystalType + "/crystal_block");
-      BlockModelBuilder modelBuilder = models().cubeAll(blockId, textureLocation);
-      simpleBlock(block, modelBuilder);
-      simpleBlockItem(block, modelBuilder);
-    }
+    // Use crystal type subfolder for textures
+    ResourceLocation textureLocation = modLoc("block/" + crystalType + "/crystal_block");
+    BlockModelBuilder modelBuilder = models().cubeAll(blockId, textureLocation);
+    simpleBlock(block, modelBuilder);
+    simpleBlockItem(block, modelBuilder);
   }
 
   /** Creates models for the budding crystal block with specified quality */
-  private void createBuddingCrystalBlockModel(String crystalType, String quality) {
-    String blockId = quality + "_budding_" + crystalType;
-    CrystalRegistry.CrystalSet crystalSet = CrystalRegistry.getCrystalSet(crystalType);
-
-    if (crystalSet != null) {
-      DeferredBlock<Block> deferredBlock;
-
-      // Get the appropriate block based on quality
-      switch (quality) {
-        case "flawless" -> deferredBlock = crystalSet.flawlessBuddingBlock;
-        case "flawed" -> deferredBlock = crystalSet.flawedBuddingBlock;
-        case "chipped" -> deferredBlock = crystalSet.chippedBuddingBlock;
-        case "damaged" -> deferredBlock = crystalSet.damagedBuddingBlock;
-        default -> {
-          MoreCrystals.LOGGER.error("Unknown budding crystal quality: {}", quality);
-          return;
-        }
-      }
-
-      Block block = deferredBlock.get();
-
-      // Use crystal type subfolder and simplified names for textures
-      ResourceLocation textureLocation =
-          modLoc("block/" + crystalType + "/" + quality + "_budding");
-      BlockModelBuilder modelBuilder = models().cubeAll(blockId, textureLocation);
-
-      // For budding quality blocks, we will use the same model for all states
-      getVariantBuilder(block)
-          .forAllStates(state -> ConfiguredModel.builder().modelFile(modelBuilder).build());
-
-      simpleBlockItem(block, modelBuilder);
+  private void createBuddingCrystalBlockModel(
+      CrystalType type, BuddingCrystalBlock.BuddingQuality quality) {
+    String crystalType = type.name;
+    String qualityPrefix = quality.getPrefix();
+    String blockId = qualityPrefix + "_budding_" + crystalType;
+    
+    // Get the block directly from the crystal type based on quality
+    DeferredBlock<Block> deferredBlock = getBuddingBlockForQuality(type, quality);
+    if (deferredBlock == null) {
+      MoreCrystals.LOGGER.error("Failed to get budding block for quality: {}", quality);
+      return;
     }
+
+    Block block = deferredBlock.get();
+
+    // Use crystal type subfolder and simplified names for textures
+    ResourceLocation textureLocation =
+        modLoc("block/" + crystalType + "/" + qualityPrefix + "_budding");
+    BlockModelBuilder modelBuilder = models().cubeAll(blockId, textureLocation);
+
+    // For budding quality blocks, we will use the same model for all states
+    getVariantBuilder(block)
+        .forAllStates(state -> ConfiguredModel.builder().modelFile(modelBuilder).build());
+
+    simpleBlockItem(block, modelBuilder);
+  }
+  
+  /**
+   * Helper method to get the appropriate budding block for a quality
+   * 
+   * @param type The crystal type
+   * @param quality The budding quality
+   * @return The deferred block for the quality, or null if unknown quality
+   */
+  private DeferredBlock<Block> getBuddingBlockForQuality(
+      CrystalType type, BuddingCrystalBlock.BuddingQuality quality) {
+    return switch (quality) {
+      case FLAWLESS -> type.flawlessBuddingBlock;
+      case FLAWED -> type.flawedBuddingBlock;
+      case CHIPPED -> type.chippedBuddingBlock;
+      case DAMAGED -> type.damagedBuddingBlock;
+      default -> null;
+    };
   }
 
   /** Creates models for crystal bud blocks at a specific growth stage */
   private void createCrystalBudModels(
-      String crystalType, String sizePrefix, CrystalBudBlock.GrowthStage stage) {
+      CrystalType type, String sizePrefix, CrystalBudBlock.GrowthStage stage) {
+    String crystalType = type.name;
     String blockId =
         sizePrefix.isEmpty() ? crystalType + "_cluster" : sizePrefix + "_" + crystalType + "_bud";
 
-    CrystalRegistry.CrystalSet crystalSet = CrystalRegistry.getCrystalSet(crystalType);
-
-    if (crystalSet != null) {
-      DeferredBlock<Block> deferredBlock;
-
-      switch (stage) {
-        case SMALL -> deferredBlock = crystalSet.smallBudBlock;
-        case MEDIUM -> deferredBlock = crystalSet.mediumBudBlock;
-        case LARGE -> deferredBlock = crystalSet.largeBudBlock;
-        case CLUSTER -> deferredBlock = crystalSet.clusterBlock;
-        default -> {
-          return;
-        }
-      }
-
-      Block block = deferredBlock.get();
-
-      ModelFile crossModel = createCrossBudModel(crystalType, blockId, stage, sizePrefix);
-
-      getVariantBuilder(block)
-          .forAllStates(
-              state -> {
-                Direction dir = state.getValue(CrystalBudBlock.FACING);
-
-                // For cross models, we only need rotational data for non-UP faces
-                if (dir == Direction.UP) {
-                  return ConfiguredModel.builder().modelFile(crossModel).build();
-                } else {
-                  // For other directions, we need to determine appropriate rotations
-                  return ConfiguredModel.builder()
-                      .modelFile(crossModel)
-                      .rotationX(dir == Direction.DOWN ? 180 : 90)
-                      .rotationY(getYRotationForDirection(dir))
-                      .build();
-                }
-              });
-
-      itemModels().getBuilder(blockId).parent(crossModel);
+    // Get the bud block based on growth stage
+    DeferredBlock<Block> deferredBlock = getBudBlockForStage(type, stage);
+    if (deferredBlock == null) {
+      MoreCrystals.LOGGER.error("Failed to get bud block for stage: {}", stage);
+      return;
     }
+
+    Block block = deferredBlock.get();
+
+    ModelFile crossModel = createCrossBudModel(crystalType, blockId, stage, sizePrefix);
+
+    getVariantBuilder(block)
+        .forAllStates(
+            state -> {
+              Direction dir = state.getValue(CrystalBudBlock.FACING);
+
+              // For cross models, we only need rotational data for non-UP faces
+              if (dir == Direction.UP) {
+                return ConfiguredModel.builder().modelFile(crossModel).build();
+              } else {
+                // For other directions, we need to determine appropriate rotations
+                return ConfiguredModel.builder()
+                    .modelFile(crossModel)
+                    .rotationX(dir == Direction.DOWN ? 180 : 90)
+                    .rotationY(getYRotationForDirection(dir))
+                    .build();
+              }
+            });
+
+    itemModels().getBuilder(blockId).parent(crossModel);
+  }
+
+  /**
+   * Helper method to get the appropriate bud block for a growth stage
+   * 
+   * @param type The crystal type
+   * @param stage The growth stage
+   * @return The deferred block for the stage, or null if unknown stage
+   */
+  private DeferredBlock<Block> getBudBlockForStage(
+      CrystalType type, CrystalBudBlock.GrowthStage stage) {
+    return switch (stage) {
+      case SMALL -> type.smallBudBlock;
+      case MEDIUM -> type.mediumBudBlock;
+      case LARGE -> type.largeBudBlock;
+      case CLUSTER -> type.clusterBlock;
+      default -> null;
+    };
   }
 
   /**

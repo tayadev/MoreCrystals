@@ -2,6 +2,7 @@ package net.taya.morecrystals.datagen;
 
 import net.minecraft.data.PackOutput;
 import net.neoforged.neoforge.common.data.LanguageProvider;
+import net.taya.morecrystals.CrystalType;
 import net.taya.morecrystals.MoreCrystals;
 
 public class LangProvider extends LanguageProvider {
@@ -14,13 +15,15 @@ public class LangProvider extends LanguageProvider {
   protected void addTranslations() {
     add("itemGroup." + MoreCrystals.MODID, "More Crystals");
 
-    for (String crystalType : MoreCrystals.CRYSTAL_TYPES) {
-      addCrystalTranslations(crystalType);
+    // Use the getAllTypes() method to get all registered crystal types
+    for (CrystalType type : CrystalType.REGISTRY) {
+      addCrystalTranslations(type);
     }
   }
 
   /** Add translations for all blocks related to a crystal type */
-  private void addCrystalTranslations(String crystalType) {
+  private void addCrystalTranslations(CrystalType type) {
+    String crystalType = type.name;
     String formattedName = formatName(crystalType);
 
     // Add translations for different budding qualities

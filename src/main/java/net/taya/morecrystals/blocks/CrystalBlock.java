@@ -1,4 +1,4 @@
-package net.taya.morecrystals;
+package net.taya.morecrystals.blocks;
 
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
@@ -14,7 +14,6 @@ public class CrystalBlock extends Block {
     super(properties);
   }
 
-  // Static factory method to create standard crystal block properties
   public static BlockBehaviour.Properties createStandardProperties() {
     return BlockBehaviour.Properties.of().strength(1.5F).sound(SoundType.AMETHYST);
   }

@@ -1,4 +1,4 @@
-package net.taya.morecrystals;
+package net.taya.morecrystals.blocks;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -40,28 +40,41 @@ public class CrystalBudBlock extends Block implements SimpleWaterloggedBlock {
 
     private final int level;
     private final int lightEmission;
-    private final Map<Direction, VoxelShape> shapes = new EnumMap<>(Direction.class);
+    private final Map<Direction, VoxelShape> shapes;
 
     GrowthStage(int level, int lightEmission, int width, int height) {
       this.level = level;
       this.lightEmission = lightEmission;
+      this.shapes = createShapesForSize(width, height);
+    }
 
+    /**
+     * Creates a map of direction to shape for a specific width and height
+     * 
+     * @param width Width of the shape in pixels
+     * @param height Height of the shape in pixels
+     * @return Map of directions to VoxelShapes
+     */
+    private Map<Direction, VoxelShape> createShapesForSize(int width, int height) {
+      Map<Direction, VoxelShape> result = new EnumMap<>(Direction.class);
       double inset = (16.0D - width) / 2.0D;
 
-      shapes.put(Direction.UP, Block.box(inset, 0.0D, inset, 16.0D - inset, height, 16.0D - inset));
-      shapes.put(
+      result.put(Direction.UP, Block.box(inset, 0.0D, inset, 16.0D - inset, height, 16.0D - inset));
+      result.put(
           Direction.DOWN,
           Block.box(inset, 16.0D - height, inset, 16.0D - inset, 16.0D, 16.0D - inset));
-      shapes.put(
+      result.put(
           Direction.NORTH,
           Block.box(inset, inset, 16.0D - height, 16.0D - inset, 16.0D - inset, 16.0D));
-      shapes.put(
+      result.put(
           Direction.SOUTH, Block.box(inset, inset, 0.0D, 16.0D - inset, 16.0D - inset, height));
-      shapes.put(
+      result.put(
           Direction.EAST, Block.box(0.0D, inset, inset, height, 16.0D - inset, 16.0D - inset));
-      shapes.put(
+      result.put(
           Direction.WEST,
           Block.box(16.0D - height, inset, inset, 16.0D, 16.0D - inset, 16.0D - inset));
+      
+      return result;
     }
 
     public VoxelShape getShape(Direction direction) {
